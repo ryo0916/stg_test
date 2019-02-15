@@ -225,6 +225,30 @@ window.onload = function(){
         // エネミーショットを描く
         ctx.fill();
 
+        // 衝突判定
+        // 全ての自機ショットの生存フラグをチェック
+        for(i = 0; i < CHARA_SHOT_MAX_COUNT; i++){
+          // 自機ショットの生存フラグをチェック
+          if(charaShot[i].alive){
+            // 自機ショットとエネミーとの衝突判定
+            for(j = 0; j < ENEMY_MAX_COUNT; j++){
+              // エネミーの生存フラグをチェック
+              if(enemy[j].alive){
+                // エネミーと自機ショットとの距離を計測
+                p = enemy[j].position.distance(charaShot[i].position);
+                if(p.length() < enemy[j].size){
+                  // 衝突していたら生存フラグを降ろす
+                  enemy[j].alive = false;
+                  charaShot[i].alive = false;
+
+                  // 衝突があったのでループを抜ける
+                  break;
+                }
+              }
+            }
+          }
+        }
+
         // フラグにより再帰呼び出し
         if(run){setTimeout(arguments.callee, fps);}
     })();
