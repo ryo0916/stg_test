@@ -87,3 +87,42 @@ Enemy.prototype.move = function(){
             break;
     }
 };
+
+function EnemyShot(){
+  this.position = new Point();
+  this.vector = new Point();
+  this.size = 0;
+  this.speed = 0;
+  this.alive = false;
+}
+
+EnemyShot.prototype.set = function(p, vector, size, speed){
+  // 座標、ベクトルをセット
+  this.position.x = p.x;
+  this.position.y = p.y;
+  this.vector.x = vector.x;
+  this.vector.y = vector.y;
+
+  // サイズ、スピードをセット
+  this.size = size;
+  this.speed = speed;
+
+  // 生存フラグを立てる
+  this.alive = true;
+};
+
+EnemyShot.prototype.move = function(){
+  // 座標をベクトルに応じてspeed分だけ移動させる
+  this.position.x += this.vector.x * this.speed;
+  this.position.y += this.vector.y * this.speed;
+
+  // 一定以上の座標に到達していたら生存フラグを降ろす
+  if(
+    this.position.x < -this.size ||
+    this.position.y < -this.size ||
+    this.position.x > this.size + screenCanvas.width ||
+    this.position.y > this.size + screenCanvas.height
+  ){
+      this.alive = false;
+  }
+}

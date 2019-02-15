@@ -13,6 +13,8 @@ var CHARA_SHOT_COLOR = 'rgba(0, 255, 0, 0.75)';
 var CHARA_SHOT_MAX_COUNT = 10;
 var ENEMY_COLOR = 'rgba(255, 0, 0, 0.75)';
 var ENEMY_MAX_COUNT = 10;
+var ENEMY_SHOT_COLOR = 'rgba(255, 0, 255, 0.75)';
+var ENEMY_SHOT_MAX_COUNT = 100;
 
 // main
 window.onload = function(){
@@ -50,6 +52,12 @@ window.onload = function(){
     var enemy = new Array(ENEMY_MAX_COUNT);
     for(i = 0; i < ENEMY_MAX_COUNT; i++){
         enemy[i] = new Enemy();
+    }
+
+    // エネミーショット初期化
+    var enemyShot = new Array(ENEMY_SHOT_MAX_COUNT);
+    for(i = 0; i < ENEMY_SHOT_MAX_COUNT; i++){
+      enemyShot[i] = new EnemyShot();
     }
 
     // ループ処理を呼び出す
@@ -153,18 +161,68 @@ window.onload = function(){
 
         // 全ての敵キャラを調査
         for(i = 0; i < ENEMY_MAX_COUNT; i++){
+            // 敵キャラの生存フラグをチェック
             if(enemy[i].alive){
+                // 敵キャラを動かす
                 enemy[i].move();
+
+                // 敵キャラを描くパスを設定
                 ctx.arc(
                     enemy[i].position.x,
                     enemy[i].position.y,
                     enemy[i].size,
                     0, Math.PI * 2, false
                 );
+
+                // ショットを打つかどうかパラメータの値からチェック
+                if(enemy[i].params % 30 === 0){
+                  // エネミーショットを調査する
+                  for(j = 0; j < ENEMY_SHOT_MAX_COUNT; j++){
+                    if(!enemyShot[j].alive){
+                      // エネミーショットを新規にセットする
+                      p = enemy[i].position.distance(chara.position);
+                      p.normalize();
+                      enemyShot[j].set(enemy[i].position, p, 5, 5);
+
+                      // 1個出現させたのでループを抜ける
+                      break;
+                    }
+                  }
+                }
                 ctx.closePath();
             }
         }
         ctx.fillStyle = ENEMY_COLOR;
+        ctx.fill();
+
+        // エネミーショット
+        ctx.beginPath();
+
+        // 全てのエネミーショットを調査する
+        for(i = 0; i < ENEMY_SHOT_MAX_COUNT; i++){
+          // エネミーショットが既に発射されているかチェック
+          if(enemyShot[i].alive){
+            // エネミーショットを動かす
+            enemyShot[i].move();
+
+            // エネミーショットを描くパスを設定
+            ctx.arc(
+              enemyShot[i].position.x,
+              enemyShot[i].position.y,
+              enemyShot[i].size,
+              0, Math.PI * 2, false
+            );
+
+            // パスをいったん閉じる
+            ctx.closePath();
+
+          }
+        }
+
+        // エネミーショットの色を設定する
+        ctx.fillStyle = ENEMY_SHOT_COLOR;
+
+        // エネミーショットを描く
         ctx.fill();
 
         // フラグにより再帰呼び出し
