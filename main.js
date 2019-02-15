@@ -5,14 +5,21 @@ var fps = 1000 / 30;
 var mouse = new Point();
 var ctx; // canvas2d コンテキスト格納用
 var fire = false;
+var counter = 0;
 
 // const 定数
 var CHARA_COLOR = 'rgba(0, 0, 255, 0.75)';
 var CHARA_SHOT_COLOR = 'rgba(0, 255, 0, 0.75)';
 var CHARA_SHOT_MAX_COUNT = 10;
+var ENEMY_COLOR = 'rgba(255, 0, 0, 0.75)';
+var ENEMY_MAX_COUNT = 10;
 
 // main
-window.onload = function(){   
+window.onload = function(){
+    // 変数宣言
+    var i, j;
+    var p = new Point();
+
     // スクリーンの初期化
     screenCanvas = document.getElementById('screen');
     screenCanvas.width = 256;
@@ -39,8 +46,17 @@ window.onload = function(){
         charaShot[i] = new CharacterShot();
     }
 
+    // 敵キャラ用インスタンスの初期化
+    var enemy = new Array(ENEMY_MAX_COUNT);
+    for(i = 0; i < ENEMY_MAX_COUNT; i++){
+        enemy[i] = new Enemy();
+    }
+
     // ループ処理を呼び出す
     (function(){
+        // カウンタをインクリメント
+        counter++;
+
         // HTMLを更新
         info.innerHTML = mouse.x + ' : ' + mouse.y;
 
@@ -107,7 +123,50 @@ window.onload = function(){
 
         // 自機ショットを描く
         ctx.fill();
-        
+
+        // 敵キャラの出現管理
+        // 100フレームに一度出現
+        if(counter % 100 === 0){
+            // 全ての敵キャラを調査
+            for(i = 0; i < ENEMY_MAX_COUNT; i++){
+                // 敵キャラの生存フラグをチェック
+                if(!enemy[i].alive){
+                    // タイプを決定するパラメータを算出
+                    j = (counter % 200) / 100;
+
+                    // タイプに応じて初期位置を決める
+                    var enemySize = 15;
+                    p.x = -enemySize + (screenCanvas.width + enemySize * 2) * j
+                    p.y = screenCanvas.height / 2;
+
+                    // 敵キャラを新規にセット
+                    enemy[i].set(p, enemySize, j);
+
+                    // 1体出現させたのでループを抜ける
+                    break;
+                }
+            }
+        }
+
+        // 敵キャラの設定を開始
+        ctx.beginPath();
+
+        // 全ての敵キャラを調査
+        for(i = 0; i < ENEMY_MAX_COUNT; i++){
+            if(enemy[i].alive){
+                enemy[i].move();
+                ctx.arc(
+                    enemy[i].position.x,
+                    enemy[i].position.y,
+                    enemy[i].size,
+                    0, Math.PI * 2, false
+                );
+                ctx.closePath();
+            }
+        }
+        ctx.fillStyle = ENEMY_COLOR;
+        ctx.fill();
+
         // フラグにより再帰呼び出し
         if(run){setTimeout(arguments.callee, fps);}
     })();

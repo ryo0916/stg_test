@@ -36,3 +36,54 @@ CharacterShot.prototype.move = function(){
         this.alive = false;
     }
 };
+
+function Enemy(){
+    this.position = new Point();
+    this.size = 0;
+    this.type = 0;
+    this.params = 0;
+    this.alive = false;
+}
+
+Enemy.prototype.set = function(p, size, type){
+    // 座標をセット
+    this.position.x = p.x;
+    this.position.y = p.y;
+
+    // サイズ、タイプをセット
+    this.size = size;
+    this.type = type;
+
+    // パラメーターをリセット
+    this.params = 0;
+
+    // 生存フラグを立てる
+    this.alive = true;
+};
+
+Enemy.prototype.move = function(){
+    // パラメーターをインクリメント
+    this.params++;
+
+    // タイプに応じて分岐
+    switch(this.type){
+        case 0:
+            // X 方向へまっすぐ進む
+            this.position.x += 2;
+
+            // スクリーンの右端より奥に到達したら生存フラグを降ろす
+            if(this.position.x > this.size + screenCanvas.width){
+                this.alive = false;
+            }
+            break;
+        case 1:
+            // マイナス X 方向へまっすぐ進む
+            this.position.x -= 2;
+
+            // スクリーンの左端より奥に到達したら生存フラグを降ろす
+            if(this.position.x < -this.size){
+                this.alive = false;
+            }
+            break;
+    }
+};
