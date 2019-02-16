@@ -6,6 +6,8 @@ var mouse = new Point();
 var ctx; // canvas2d コンテキスト格納用
 var fire = false;
 var counter = 0;
+var score = 0;
+var message = '';
 
 // const 定数
 var CHARA_COLOR = 'rgba(0, 0, 255, 0.75)';
@@ -156,6 +158,23 @@ window.onload = function(){
             }
         }
 
+        // カウンターの値によってシーン分岐
+        switch(true){
+          // カウンターが70より小さい
+          case counter < 70:
+            message = 'READY...';
+            break;
+
+          // カウンターが100より小さい
+          case counter < 100:
+            message = 'GO!!';
+            break;
+
+          // カウンターが100以上
+          default:
+            message = '';
+        }
+
         // 敵キャラの設定を開始
         ctx.beginPath();
 
@@ -241,6 +260,9 @@ window.onload = function(){
                   enemy[j].alive = false;
                   charaShot[i].alive = false;
 
+                  // スコアを更新するためにインクリメント
+                  score++;
+
                   // 衝突があったのでループを抜ける
                   break;
                 }
@@ -248,6 +270,26 @@ window.onload = function(){
             }
           }
         }
+
+        for(i = 0; i <  ENEMY_SHOT_MAX_COUNT; i++){
+          // エネミーショットの生存フラグをチェック
+          if(enemyShot[i].alive){
+            // 自機とエネミーショットとの距離を計測
+            p = chara.position.distance(enemyShot[i].position);
+            if(p.length() < chara.size){
+              // 衝突していたら生存フラグを降ろす
+              chara.alive = false;
+
+              // 衝突があったのでパラメータを変更してループを抜ける
+              run = false;
+              message = 'GAME OVER !!';
+              break;
+            }
+          }
+        }
+
+        // HTMLを更新
+        info.innerHTML = 'SCORE: ' + (score * 100) + ' ' + message;
 
         // フラグにより再帰呼び出し
         if(run){setTimeout(arguments.callee, fps);}
