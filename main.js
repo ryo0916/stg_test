@@ -62,6 +62,10 @@ window.onload = function(){
       enemyShot[i] = new EnemyShot();
     }
 
+    // 自機の初期位置を修正
+    mouse.x = screenCanvas.width / 2;
+    mouse.y = screenCanvas.height - 20;
+
     // ループ処理を呼び出す
     (function(){
         // カウンタをインクリメント
